@@ -117,7 +117,7 @@ def getAllUrls(last_page=50):
 
 print("Collecting all urls")
 nko_urls = getAllUrls()
-print("Approximate time for completion {} mins".format(int(len(nko_urls)*0.3*2/60)))
+
 
 start = time.time()
 for number in nko_urls:
