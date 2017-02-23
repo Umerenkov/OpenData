@@ -115,7 +115,7 @@ def getAllUrls(last_page=50):
     return nko_urls
     
 
-
+print("Collecting all urls")
 nko_urls = getAllUrls()
 print("Approximate time for completion {} mins".format(int(len(nko_urls)*0.3*2/60)))
 
@@ -131,7 +131,9 @@ for number in nko_urls:
     current_time = time.time()
     hours, rem = divmod(current_time-start, 3600)
     minutes, seconds = divmod(rem, 60)
-    sys.stdout.write("Elapsed time: {:0>2}:{:0>2}".format(int(minutes),int(seconds)))
+    sys.stdout.write("Elapsed time: {:0>2}:{:0>2}\r".format(int(minutes),int(seconds)))
     sys.stdout.flush()
 
 
+print("Finished")
+FINAL.to_csv("/Users/dmitrys/Desktop/DataProjects/OpenDataNKO/FINAL.csv")
