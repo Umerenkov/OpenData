@@ -19,6 +19,7 @@ import pandas as pd
 from urllib.request import Request, urlopen
 import requests
 from user_agent import generate_user_agent
+import numpy as np
 
 
 main_url = "http://ivsezaodnogo.ru/foundations?search_by=name&page={}"
@@ -28,6 +29,8 @@ img_url = "http://ivsezaodnogo.ru/uploads/foundation/logo/{}/thumb_profilepic.jp
 
 FINAL = pd.DataFrame(columns=["name",
                              "address",
+                             "longtitude",
+                             "latitude",
                              "telephone",
                              "email",
                              "website",
@@ -84,13 +87,35 @@ def getInformation(page):
             'description':description}
 
 
+def getCoordinatesFromYandex(yandex_url):
+    try:
+        req = Request(yandex_url, headers={'User-Agent': generate_user_agent()})
+        webpage = urlopen(req).read()
+        soup = BeautifulSoup(webpage, "lxml")
+        soup.find("div", attrs={"class":"toponym-card-view__coordinates-deg"})
+        coordinates = re.split("coordinates", str(soup))[-2]
+        coordinates = re.findall(r'\d+[\.]?\d*', coordinates)[0:2]
+    except:
+        coordinates=[np.NaN, np.NaN]
+    return coordinates
+
+
 def getContacts(page):
     contacts = page.find("div", attrs={"class":"contacts js-donate-block"})
+    yandex_url = re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', str(contacts))[0]
+    
+    longtitude, latitude = getCoordinatesFromYandex(yandex_url)
+    
     address = html_stripper(contacts.find("a",attrs={'class':"info-line address"}))
     telephone = html_stripper(contacts.find("div", attrs={"class":"info-line phone"}))
     email = html_stripper(contacts.find("div", attrs={"class":"info-line email"}))
     website = html_stripper(contacts.find("div", attrs={"class":"info-line web"}))
-    return {'address':address, 'telephone':telephone, 'email':email, 'website':website}
+    return {'longtitude':float(longtitude),
+            "latitude":float(latitude), 
+            'address':address, 
+            'telephone':telephone, 
+            'email':email, 
+            'website':website}
 
 
 
